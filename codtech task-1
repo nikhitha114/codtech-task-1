@@ -1,0 +1,151 @@
+//*Library management in Java refers to designing and implementing a software system to manage library operations effectively.
+ This typically includes functionalities like:
+1.Book Management:
+Adding, updating, and deleting book records.
+Categorizing books by genres, authors, or publishers.
+2.Member Management:
+Managing library member details (e.g., name, ID, contact information).
+Handling membership registrations and renewal
+import java.util.*;
+class LibraryItem {
+    private String id;
+    private String title;
+    private String author;
+    private String category;
+    private boolean isAvailable;
+    private String dueDate;
+
+    public LibraryItem(String id, String title, String author, String category) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.category = category;
+        this.isAvailable = true;
+        this.dueDate = "-";
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    public void checkOut(String dueDate) {
+        this.isAvailable = false;
+        this.dueDate = dueDate;
+    }
+
+    public void returnItem() {
+        this.isAvailable = true;
+        this.dueDate = "-";
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Title: " + title + ", Author: " + author + ", Category: " + category + ", Status: " + (isAvailable ? "Available" : "Borrowed") + ", Due Date: " + dueDate;
+    }
+}
+
+public class LibraryManagementSystem {
+    private static final Map<String, LibraryItem> library = new HashMap<>();
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        seedData();
+        System.out.println("Welcome to the Library Management System!");
+        while (true) {
+            System.out.println("\nChoose an option:");
+            System.out.println("1. Add Item\n2. Check Out Item\n3. Return Item\n4. Search Item\n5. Exit");
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1 -> addItem();
+                case 2 -> checkOutItem();
+                case 3 -> returnItem();
+                case 4 -> searchItem();
+                case 5 -> {
+                    System.out.println("Exiting system. Goodbye!");
+                    return;
+                }
+                default -> System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private static void seedData() {
+        library.put("1", new LibraryItem("1", "To Kill a Mockingbird", "Harper Lee", "Fiction"));
+        library.put("2", new LibraryItem("2", "1984", "George Orwell", "Fiction"));
+        library.put("101", new LibraryItem("101", "National Geographic", "NatGeo Group", "Science"));
+        library.put("201", new LibraryItem("201", "Inception", "Christopher Nolan", "Thriller"));
+    }
+
+    private static void addItem() {
+        System.out.println("Enter ID:");
+        String id = scanner.nextLine();
+        System.out.println("Enter Title:");
+        String title = scanner.nextLine();
+        System.out.println("Enter Author:");
+        String author = scanner.nextLine();
+        System.out.println("Enter Category:");
+        String category = scanner.nextLine();
+        library.put(id, new LibraryItem(id, title, author, category));
+        System.out.println("Item added successfully!");
+    }
+
+    private static void checkOutItem() {
+        System.out.println("Enter Item ID to Check Out:");
+        String id = scanner.nextLine();
+        if (library.containsKey(id) && library.get(id).isAvailable()) {
+            System.out.println("Enter Due Date (YYYY-MM-DD):");
+            String dueDate = scanner.nextLine();
+            library.get(id).checkOut(dueDate);
+            System.out.println("Item checked out successfully. Due Date: " + dueDate);
+        } else {
+            System.out.println("Item not available or invalid ID.");
+        }
+    }
+
+    private static void returnItem() {
+        System.out.println("Enter Item ID to Return:");
+        String id = scanner.nextLine();
+        if (library.containsKey(id) && !library.get(id).isAvailable()) {
+            library.get(id).returnItem();
+            System.out.println("Item returned successfully.");
+        } else {
+            System.out.println("Item not borrowed or invalid ID.");
+        }
+    }
+
+    private static void searchItem() {
+        System.out.println("Search by: 1. Title 2. Author 3. Category");
+        int searchChoice = Integer.parseInt(scanner.nextLine());
+        System.out.println("Enter search term:");
+        String term = scanner.nextLine().toLowerCase();
+
+        library.values().stream()
+                .filter(item -> switch (searchChoice) {
+                    case 1 -> item.getTitle().toLowerCase().contains(term);
+                    case 2 -> item.getAuthor().toLowerCase().contains(term);
+                    case 3 -> item.getCategory().toLowerCase().contains(term);
+                    default -> false;
+                })
+                .forEach(System.out::println);
+    }
+}
